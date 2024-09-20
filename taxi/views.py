@@ -83,7 +83,7 @@ class CarDetailView(LoginRequiredMixin, generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["drivers"] = list(self.object.drivers.all())
+        context["drivers"] = self.object.drivers.all()
 
         return context
 
