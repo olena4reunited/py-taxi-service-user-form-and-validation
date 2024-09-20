@@ -73,7 +73,6 @@ class CarDetailView(LoginRequiredMixin, generic.DetailView):
                 Prefetch(
                     "drivers",
                     queryset=get_user_model().objects.only(
-                        "id",
                         "username",
                         "first_name",
                         "last_name"
