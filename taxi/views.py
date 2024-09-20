@@ -1,4 +1,6 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from django.db.models import Prefetch
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
@@ -63,19 +65,35 @@ class CarListView(LoginRequiredMixin, generic.ListView):
 class CarDetailView(LoginRequiredMixin, generic.DetailView):
     model = Car
 
+    def get_queryset(self):
+        return (
+            super().get_queryset()
+            .select_related("manufacturer")
+            .prefetch_related(
+                Prefetch(
+                    "drivers",
+                    queryset=get_user_model().objects.only(
+                        "id",
+                        "username",
+                        "first_name",
+                        "last_name"
+                    ),
+                )
+            )
+        )
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        car = self.get_object()
-        context["driver_ids"] = list(car.drivers.values_list("id", flat=True))
+        context["drivers"] = list(self.object.drivers.all())
 
         return context
 
 
 @login_required
 def toggle_driver(request: HttpRequest, pk: int) -> HttpResponse:
-    car = get_object_or_404(Car, pk=pk)
+    car = Car.objects.prefetch_related("drivers").get(pk=pk)
 
-    if request.user in car.drivers.all():
+    if car.drivers.filter(id=request.user.id).exists():
         car.drivers.remove(request.user)
     else:
         car.drivers.add(request.user)

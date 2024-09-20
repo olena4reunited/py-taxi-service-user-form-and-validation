@@ -31,7 +31,7 @@
     </h1>
   <hr>
   <ul>
-    {% for driver in car.drivers.all %}
+    {% for driver in drivers %}
       <li>{{ driver.username }} ({{ driver.first_name }} {{ driver.last_name }})</li>
     {% endfor %}
   </ul>
