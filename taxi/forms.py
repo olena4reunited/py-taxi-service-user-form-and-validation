@@ -20,23 +20,16 @@ class DriverCreationForm(UserCreationForm):
         )
 
     def clean_license_number(self):
-        license_number = self.cleaned_data.get("license_number")
+        return self.validate_license_number(self.cleaned_data.get("license_number"))
 
+    @classmethod
+    def validate_license_number(cls, license_number):
         if not license_number:
             raise ValidationError(gettext_lazy("This field is required."))
 
         if not re.match(r"^[A-Z]{3}\d{5}$", license_number):
             raise ValidationError(
-                gettext_lazy(
-                    "Enter a valid license number in the format ABC12345."
-                )
-            )
-
-        if Driver.objects.filter(license_number=license_number).exists():
-            raise ValidationError(
-                gettext_lazy(
-                    "A driver with this license number already exists."
-                )
+                gettext_lazy("Enter a valid license number in the format ABC12345.")
             )
 
         return license_number
@@ -48,16 +41,10 @@ class DriverLicenseUpdateForm(forms.ModelForm):
         fields = ("license_number",)
 
     def clean_license_number(self):
-        license_number = self.cleaned_data.get("license_number")
-
-        if not re.match(r"^[A-Z]{3}\d{5}$", license_number):
-            raise ValidationError(
-                gettext_lazy(
-                    "Enter a valid license number in the format ABC12345."
-                )
-            )
-
-        return license_number
+        return (
+            DriverCreationForm
+            .validate_license_number(self.cleaned_data.get("license_number"))
+        )
 
 
 class CarForm(forms.ModelForm):
