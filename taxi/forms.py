@@ -20,7 +20,9 @@ class DriverCreationForm(UserCreationForm):
         )
 
     def clean_license_number(self):
-        return self.validate_license_number(self.cleaned_data.get("license_number"))
+        return (
+            self.validate_license_number(self.cleaned_data.get("license_number"))
+        )
 
     @classmethod
     def validate_license_number(cls, license_number):
@@ -29,7 +31,9 @@ class DriverCreationForm(UserCreationForm):
 
         if not re.match(r"^[A-Z]{3}\d{5}$", license_number):
             raise ValidationError(
-                gettext_lazy("Enter a valid license number in the format ABC12345.")
+                gettext_lazy(
+                    "Enter a valid license number in the format ABC12345."
+                )
             )
 
         return license_number
