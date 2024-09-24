@@ -21,7 +21,9 @@ class DriverCreationForm(UserCreationForm):
 
     def clean_license_number(self):
         return (
-            self.validate_license_number(self.cleaned_data.get("license_number"))
+            self.validate_license_number(
+                self.cleaned_data.get("license_number")
+            )
         )
 
     @classmethod
